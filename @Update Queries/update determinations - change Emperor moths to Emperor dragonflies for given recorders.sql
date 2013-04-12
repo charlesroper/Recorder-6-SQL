@@ -7,8 +7,9 @@ if object_ID('tempdb..#jncc_newdata') is not null
 Re-determine Emperor Moth records to Emperor Dragonfly
 ======================================================
 
-Various records for Emperor dragonflies have been imported as Emperor moths. We need to re-determine
-these records. The records are by one of the following recorders:
+Various records for Emperor dragonflies have been imported as Emperor moths.
+We need to re-determine these records. The records are by one of the following
+recorders:
 
 * Alan Gillham
 * Ben Rainbow
@@ -18,19 +19,24 @@ these records. The records are by one of the following recorders:
 
 ## Actions
 
-Re-determine all Emperor Moth records by one of the recorders listed about as Emperor Dragonfly
+Re-determine all Emperor Moth records by one of the recorders listed about as
+Emperor Dragonfly
 
     * Determiner: Penny Green
-    * Comment: "Emperor moth was originally entered in error; changed to Emperor dragonfly"
-    * Determination Status: Correct 
+    * Comment: "Emperor moth was originally entered in error; changed to
+      Emperor dragonfly"
+    * Determination Status: Correct
 
 Steps
+
     1.  Create temp table to hold new determination keys
-    2.  Insert into temp table all preferred determination keys with a given Recorder and Taxon List Item Key into temp table
+    2.  Insert into temp table all preferred determination keys with a given
+        Recorder and Taxon List Item Key into temp table
     3.  Populate temp table with new determination keys
     4.  Insert new determinations into the TAXON_DETERMINATION table
     5.  Update the VERIFIED flag in the taxon occurrence
     6.  Remove the PREFERRED flag from the old determinations
+
 */
 
 
@@ -61,10 +67,10 @@ begin transaction
         orig_txd_key                char(16) collate SQL_Latin1_General_CP1_CI_AS
         ,taxon_determination_key    char(16) collate SQL_Latin1_General_CP1_CI_AS
     )
-    
+
     -- Insert all preferred determination keys with a given [TAXON_OCCURRENCE.COMMENT] into temp table.
     -- See @occurrence_comment for the given comment.
-    insert into 
+    insert into
         #jncc_newdata (orig_txd_key)
     select
         txd.TAXON_DETERMINATION_KEY
@@ -91,12 +97,12 @@ begin transaction
                                       ITN_2.TAXON_LIST_ITEM_KEY = ITN_3.RECOMMENDED_TAXON_LIST_ITEM_KEY
                                     WHERE
                                       ITN_1.TAXON_LIST_ITEM_KEY = @old_taxon))
-    
+
     -- Populate temp table with new determination keys
-    declare 
+    declare
         @original_key   char(16)
         ,@new_key       char(16)
-    
+
     declare csr_new_txd_key cursor for
         select orig_txd_key from #jncc_newdata
         open csr_new_txd_key
@@ -114,7 +120,7 @@ begin transaction
         end
     close csr_new_txd_key
     deallocate csr_new_txd_key
-        
+
     -- Insert new determinations into the TAXON_DETERMINATION table
     insert into TAXON_DETERMINATION (
         TAXON_DETERMINATION_KEY
@@ -131,7 +137,7 @@ begin transaction
         ,ENTERED_BY
         ,ENTRY_DATE
     )
-    select 
+    select
         j.taxon_determination_key   -- TAXON_DETERMINATION_KEY
         ,@new_taxon                 -- TAXON_LIST_ITEM_KEY
         ,txd.TAXON_OCCURRENCE_KEY   -- TAXON_OCCURRENCE_KEY
@@ -150,7 +156,7 @@ begin transaction
     inner join
         TAXON_DETERMINATION txd on
         j.orig_txd_key = txd.TAXON_DETERMINATION_KEY
-        
+
     -- Update the VERIFIED flag in the taxon occurrence
     update
         txo
@@ -167,7 +173,7 @@ begin transaction
     inner join
         #jncc_newdata j on
         txd.TAXON_DETERMINATION_KEY = j.taxon_determination_key
-        
+
     -- Remove the PREFERRED flag from the old determinations
     update
         txd
@@ -178,7 +184,7 @@ begin transaction
     inner join
         #jncc_newdata j on
         txd.TAXON_DETERMINATION_KEY = j.orig_txd_key
-        
+
     select
         itn.PREFERRED_NAME
         ,itn.COMMON_NAME
@@ -196,7 +202,7 @@ begin transaction
     inner join
         INDEX_TAXON_NAME itn on
         txd.TAXON_LIST_ITEM_KEY = itn.TAXON_LIST_ITEM_KEY
-        
+
     select
         itn.PREFERRED_NAME
         ,itn.COMMON_NAME
@@ -208,5 +214,5 @@ begin transaction
         txd.TAXON_DETERMINATION_KEY = j.orig_txd_key
     inner join
         INDEX_TAXON_NAME itn on
-        txd.TAXON_LIST_ITEM_KEY = itn.TAXON_LIST_ITEM_KEY    
+        txd.TAXON_LIST_ITEM_KEY = itn.TAXON_LIST_ITEM_KEY
 rollback transaction
