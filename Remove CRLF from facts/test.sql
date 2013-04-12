@@ -1,0 +1,5 @@
+-- Test to see which facts have CR&LFs
+
+USE NBNData
+SELECT * FROM TAXON_FACT
+WHERE RIGHT(CAST(DATA AS VARCHAR(8000)), 2) = (CHAR(13)+CHAR(10))

@@ -1,0 +1,1 @@
+BACKUP DATABASE [NBNData] TO  DISK = N'I:\BRC_SQL\Program Files\Microsoft SQL Server\MSSQL.1\MSSQL\Backup\NBNData.bak' WITH NOFORMAT, INIT,  NAME = N'NBNData-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10;
