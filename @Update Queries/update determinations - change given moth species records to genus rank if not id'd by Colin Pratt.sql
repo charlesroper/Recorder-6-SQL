@@ -74,7 +74,7 @@ begin transaction
     set @determination_comment  = 'No gen. det. so changed to genus.'
     set @current_user           = 'THU00002000001TP' -- Charles Roper
     set @start_date             = dbo.LCToRataDie('01/01/2011')
-    set @end_date               = dbo.LCToRataDie('31/12/2011')
+    set @end_date               = dbo.LCToRataDie('31/12/2012')
 
 print '';
 print 'Creating TEMP table...';
