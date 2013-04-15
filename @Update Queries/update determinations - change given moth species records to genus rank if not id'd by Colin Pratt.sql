@@ -64,12 +64,13 @@ begin transaction
         ,@start_date            char(10)
         ,@end_date              char(10)
 
+    set @old_taxon              = 'NHMSYS0000495346'
+    set @new_taxon              = 'NHMSYS0000495344'
+
     set @date                   = GETDATE()
     set @new_determiner         = 'THU00002000001T6' -- Colin Pratt
     set @new_det_role           = (select top 1 DETERMINER_ROLE_KEY from TAXON_DETERMINATION where DETERMINER = @new_determiner and PREFERRED = 1)
     set @new_det_type           = 'NBNSYS0000000012' -- Correct
-    set @old_taxon              = 'NHMSYS0000497250' -- Epirrita dilutata
-    set @new_taxon              = 'NHMSYS0000497247' -- Epirrita [genus]
     set @determination_comment  = 'No gen. det. so changed to genus.'
     set @current_user           = 'THU00002000001TP' -- Charles Roper
     set @start_date             = dbo.LCToRataDie('01/01/2011')
