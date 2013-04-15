@@ -215,7 +215,7 @@ print '';
     inner join
         #jncc_newdata j on
         txd.TAXON_DETERMINATION_KEY = j.orig_txd_key
-        
+
     -- Test changes
     select
         itn.PREFERRED_NAME
