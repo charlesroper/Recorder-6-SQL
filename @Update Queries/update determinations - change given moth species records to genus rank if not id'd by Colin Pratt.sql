@@ -16,8 +16,7 @@ NHMSYS0000498534 Common Rustic               = NHMSYS0000498530 Mesapamea
 NHMSYS0000498531 Lesser Common Rustic        = NHMSYS0000498530 Mesapamea
 NHMSYS0000495347 Copper Underwing            = NHMSYS0000495344 Amphipyra
 NHMSYS0000550481 Svennson's Copper Underwing = NHMSYS0000495344 Amphipyra
-
-? NHMSYS0000495346 Svennson's Copper Underwing sub. sp. ?
+NHMSYS0000495346 Svennson's subsp.           = NHMSYS0000495344 Amphipyra
 
 The records to be changed should be in 2011 and 2012.
 
@@ -44,14 +43,13 @@ Steps:
           - Determination is NOT by Colin Pratt
           - Taxon (TAXON_LIST_ITEM_KEY) is one of the above taxa
           - Sample date is in 2011 or 2012
-    3.  Populate temp table with newly generated determination keys
-    4.  Insert new determinations and attributes into the 
-        TAXON_DETERMINATION table
+    3.  Populate temp table with newly generated determination keys, joining
+        to selected current det. keys
+    4.  Insert new determinations and attributes into the TAXON_DETERMINATION
+        table
     5.  Update the VERIFIED flag in the taxon occurrence
     6.  Remove the PREFERRED flag from the old determinations
-
 */
-
 
 begin transaction
     declare
@@ -122,7 +120,7 @@ print '';
                                       ITN_1.TAXON_LIST_ITEM_KEY = @old_taxon))
 
 print '';
-print 'Popularing TEMP table with new det. keys...';
+print 'Populating TEMP table with new det. keys...';
 print '';
 
     -- Populate temp table with new determination keys
