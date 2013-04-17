@@ -20,7 +20,7 @@ select distinct
     dbo.LCReturnDateShort(sa.VAGUE_DATE_START, sa.VAGUE_DATE_TYPE, 'f')
     
   ,EndDate =
-    dbo.LCReturnDateShort(sa.VAGUE_DATE_START, sa.VAGUE_DATE_TYPE, 'f')
+    dbo.LCReturnDateShort(sa.VAGUE_DATE_END, sa.VAGUE_DATE_TYPE, 'f')
 
   ,DateType =
     sa.VAGUE_DATE_TYPE
