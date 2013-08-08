@@ -49,7 +49,7 @@ from (
 	  convert(varchar(max),txd.detail) = 'PSR' and
 	  itnp.preferred_list = '1'
  
- ) as RSIList
+ ) as PSRList
 
 group by
   [Latin Name]
