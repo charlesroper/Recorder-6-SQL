@@ -52,8 +52,6 @@ select distinct
       END
     END
 
-  --,Geo = geometry::Point(dbo.LCReturnEastings(sa.SPATIAL_REF, sa.SPATIAL_REF_SYSTEM), dbo.LCReturnNorthings(sa.SPATIAL_REF, sa.SPATIAL_REF_SYSTEM), 27700)
-
   ,X = dbo.LCReturnEastings(sa.SPATIAL_REF, sa.SPATIAL_REF_SYSTEM)
   ,Y = dbo.LCReturnNorthings(sa.SPATIAL_REF, sa.SPATIAL_REF_SYSTEM)
 
@@ -70,7 +68,7 @@ select distinct
     END
 
   ,SiteKey =
-    ISNULL(sa.LOCATION_KEY,'')
+    ISNULL(sa.LOCATION_KEY, '')
 
   ,SiteName =
     ISNULL(dbo.FormatLocation(sa.SAMPLE_KEY), '')
@@ -85,10 +83,10 @@ select distinct
     dbo.ufn_GetFormattedName(txd.DETERMINER)
 
   ,Abundance =
-    ISNULL(dbo.LCFormatAbundanceData(txo.TAXON_OCCURRENCE_KEY),'')
+    ISNULL(dbo.LCFormatAbundanceData(txo.TAXON_OCCURRENCE_KEY), '')
 
   ,Comment =
-    ISNULL(SUBSTRING(dbo.ufn_RtfToPlaintext(CAST(txo.COMMENT AS VARCHAR)),1,255), '')
+    ISNULL(dbo.ufn_RtfToPlaintext(CAST(txo.COMMENT AS VARCHAR(8000))), '')
 
 into
   NBNReporting.dbo.ALL_NBN
@@ -116,9 +114,13 @@ inner join
   SURVEY_EVENT se
   on sa.SURVEY_EVENT_KEY = se.SURVEY_EVENT_KEY
 
+inner join
+  SURVEY s
+  on se.SURVEY_KEY = s.SURVEY_KEY
+
 left join
   survey_tag stag
-  on se.SURVEY_KEY = stag.Survey_Key
+  on s.SURVEY_KEY = stag.Survey_Key
 
 left join
   Concept c
@@ -141,20 +143,14 @@ where
   and txo.CHECKED = 1
   and dt.Verified != 1
   and sa.SPATIAL_REF is not null
-  and (sa.SPATIAL_REF_SYSTEM = 'OSGB' OR sa.SPATIAL_REF_SYSTEM = 'OSNI')
+  and sa.SPATIAL_REF_SYSTEM = 'OSGB'
   and sa.VAGUE_DATE_TYPE != 'U'
   and (ln.PREFERRED IS NULL OR ln.PREFERRED = 1)
   and txo.CONFIDENTIAL = 0
-  -- Exclude Surveys that have a SURVEY TAG beginning with two underscores.
-  and Term.Item_Name not like '[_][_]%'
-  -- Include only those records where the sample vague types are not equal
-  and sa.VAGUE_DATE_TYPE in ( select
-                                VAGUE_DATE_TYPE
-                              from
-                                SAMPLE sa
-                              where
-                                sa.VAGUE_DATE_START != sa.VAGUE_DATE_END
-                              group by
-                                VAGUE_DATE_TYPE
-                             )
-
+  -- Excludes
+  and dbo.ufn_TrimWhiteSpaces(Term.Item_Name) not like '[_][_]%' -- Exclude anything that begins with two underscores
+  and dbo.ufn_TrimWhiteSpaces(s.ITEM_NAME) not like '[_][_]%'
+  and stag.Concept_Key not in (
+    'THU0000200000013'  -- Francis Rose
+    ,'THU000020000000I' -- Patrick Roper
+    )
