@@ -6,6 +6,9 @@ IF OBJECT_ID('NBNReporting.dbo.ALL_NBN', 'U') IS NOT NULL
 select distinct
   RecordKey =
     txo.TAXON_OCCURRENCE_KEY
+    
+  ,Updated = 
+	mxd.MaxDate
 
   ,TaxonVersionKey =
     tli.TAXON_VERSION_KEY
@@ -93,6 +96,10 @@ into
 
 from
   TAXON_OCCURRENCE txo
+  
+inner join
+  NBNReporting.dbo.MAX_DATES mxd on
+  txo.TAXON_OCCURRENCE_KEY = mxd.TAXON_OCCURRENCE_KEY
 
 inner join
   TAXON_DETERMINATION txd
