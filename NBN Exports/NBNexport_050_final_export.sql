@@ -1,7 +1,7 @@
 USE NBNReporting;
 
 SELECT
-	[RecordKey]
+  [RecordKey]
   --,[Updated]
   ,[TaxonVersionKey]
   ,[SurveyKey]
