@@ -1,6 +1,8 @@
+USE NBNReporting;
+
 SELECT
 	[RecordKey]
-  ,[Updated]
+  --,[Updated]
   ,[TaxonVersionKey]
   ,[SurveyKey]
   ,[SampleKey]
@@ -10,8 +12,8 @@ SELECT
   ,[GridReference]
   ,[Projection]
   ,[Precision]
-  ,[X]
-  ,[Y]
+  --,[X]
+  --,[Y]
   ,[Sensitive]
   ,[ZeroAbundance]
   ,[SiteKey]
