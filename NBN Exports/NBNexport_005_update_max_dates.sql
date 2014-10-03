@@ -1,3 +1,10 @@
+/* 
+  Select the latest date from the TAXON_OCCURRENCE, TAXON_DETERMINATION, SAMPLE and
+  SURVEY_EVENT tables. The latest data will be stuffed into the MAX_DATES table
+  along with the TAXON_OCCURRENCE_KEY. This date can be used to compare whether a
+  record has changed since last upload.
+*/
+
 use NBNData;
 
 IF OBJECT_ID('NBNReporting.dbo.MAX_DATES', 'U') IS NOT NULL
