@@ -5,11 +5,12 @@
   record has changed since last upload.
 */
 
+set ansi_warnings off;  
 use NBNData;
 
 IF OBJECT_ID('NBNReporting.dbo.MAX_DATES', 'U') IS NOT NULL
   DROP TABLE NBNReporting.dbo.MAX_DATES;
-  
+
 select distinct
 	txo.TAXON_OCCURRENCE_KEY
 	,(SELECT Max(v) FROM (VALUES 

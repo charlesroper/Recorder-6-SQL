@@ -7,8 +7,8 @@ select distinct
   RecordKey =
     txo.TAXON_OCCURRENCE_KEY
     
-  ,Updated = 
-	mxd.MaxDate
+  ,UpdatedOn = 
+	  mxd.MaxDate
 
   ,TaxonVersionKey =
     tli.TAXON_VERSION_KEY
@@ -90,7 +90,7 @@ select distinct
 
   ,Comment =
     ISNULL(dbo.ufn_RtfToPlaintext(CAST(txo.COMMENT AS VARCHAR(8000))), '')
-
+    
 into
   NBNReporting.dbo.ALL_NBN
 
@@ -98,8 +98,8 @@ from
   TAXON_OCCURRENCE txo
   
 inner join
-  NBNReporting.dbo.MAX_DATES mxd on
-  txo.TAXON_OCCURRENCE_KEY = mxd.TAXON_OCCURRENCE_KEY
+  NBNReporting.dbo.MAX_DATES mxd 
+  on txo.TAXON_OCCURRENCE_KEY = mxd.TAXON_OCCURRENCE_KEY
 
 inner join
   TAXON_DETERMINATION txd

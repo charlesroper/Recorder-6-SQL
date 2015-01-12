@@ -1,5 +1,5 @@
 use NBNData;
-select
+select distinct
    SurveyKey  = s.SURVEY_KEY
   ,SurveyName = dbo.ufn_TrimWhiteSpaces(s.ITEM_NAME)
   --,SurveyTag = Term.Item_Name
@@ -15,12 +15,14 @@ join
 join
   Term
   on c.Term_Key = Term.Term_Key
-where
-  dbo.ufn_TrimWhiteSpaces(Term.Item_Name) not like '[_][_]%' -- Exclude anything that begins with two underscores
-  and dbo.ufn_TrimWhiteSpaces(s.ITEM_NAME) not like '[_][_]%'
-  and stag.Concept_Key not in (
-    'THU0000200000013'  -- Francis Rose
-    ,'THU000020000000I' -- Patrick Roper
-    )
+join
+  -- ALL
+  --NBNReporting.dbo.ALL_NBN_clipped as n
+  --on s.SURVEY_KEY = n.SurveyKey
+
+  -- 2014-03-14 to 2014-10-10
+  NBNReporting.dbo.ALL_NBN_140314_141010 as n
+  on s.SURVEY_KEY = n.SurveyKey
+  
 order by
   SurveyName;
