@@ -1,18 +1,21 @@
 use NBNData;
 
-if object_ID('tempdb..#jncc_newdata') is not null
-    drop table tempdb..#jncc_newdata
+if object_ID('tempdb..#txos_with_count') is not null
+    drop table #txos_with_count
     
 if object_ID('tempdb..#ranked') is not null
-    drop table tempdb..#ranked
+    drop table #ranked
 
 begin transaction
 
+-- Create a temp table (#txos_with_count) that lists all TAXON_OCCURRENCE_KEYS
+-- and counts how many times each occurs. A TXOK will get counted more than 
+-- once if there is more that one preferred TAXON_DETERMINATION related to it.
     select
         txo.TAXON_OCCURRENCE_KEY
         ,count(txd.TAXON_DETERMINATION_KEY) as txd_count
     into
-        #jncc_newdata
+        #txos_with_count
     from
         TAXON_DETERMINATION txd
     join
@@ -22,73 +25,27 @@ begin transaction
         txd.PREFERRED = 1
     group by
         txo.TAXON_OCCURRENCE_KEY
-        
+
+-- Rank the TAXON_OCCURRENCE_KEYS that have 2 preferred determinations by newest first (desc)
+-- then set anthing but the newest as preferred = 0. This update will cascade to the source 
+-- tables. In this case, we're setting txd.PREFERRED = 0.
     ;with two_prefs (TAXON_DETERMINATION_KEY, TAXON_OCCURRENCE_KEY, PREF, [RANK]) AS
     (
         select
             txd.TAXON_DETERMINATION_KEY
-            ,jn.TAXON_OCCURRENCE_KEY
+            ,#txoc.TAXON_OCCURRENCE_KEY
             ,txd.PREFERRED
             ,rank() over (partition by txd.TAXON_OCCURRENCE_KEY order by txd.VAGUE_DATE_START desc) as [rank]
         from
-            #jncc_newdata jn
+            #txos_with_count #txoc
         inner join
             TAXON_DETERMINATION txd
-            on jn.taxon_occurrence_key = txd.TAXON_OCCURRENCE_KEY
+            on #txoc.taxon_occurrence_key = txd.TAXON_OCCURRENCE_KEY
         where
-            jn.txd_count > 1
+            #txoc.txd_count > 1
     )
     update two_prefs
     set pref = 0
     where [RANK] > 1;
 
-    select
-        txd.TAXON_DETERMINATION_KEY
-        ,jn.TAXON_OCCURRENCE_KEY
-        ,txd.PREFERRED
-        ,txd.ENTRY_DATE
-        ,txd.VAGUE_DATE_START
-        ,rank() over (partition by txd.TAXON_OCCURRENCE_KEY order by txd.VAGUE_DATE_START desc) as [rank]
-    into #ranked
-    from
-        #jncc_newdata jn
-    inner join
-        TAXON_DETERMINATION txd
-        on jn.taxon_occurrence_key = txd.TAXON_OCCURRENCE_KEY
-    where
-        jn.txd_count > 1
-        
-        
-    -- use another cte to remove the preferred status from row != 1
-    ;with cte (row, txo_key, txd_key, pref) as
-    (
-    select 
-        row_number() over(partition by taxon_occurrence_key order by rank asc) as row
-        ,taxon_occurrence_key
-        ,taxon_determination_key
-        ,preferred
-    from #ranked
-    )
-    update TAXON_DETERMINATION
-    set PREFERRED = 0
-    from TAXON_DETERMINATION txd
-    join cte
-    on txd.TAXON_DETERMINATION_KEY = cte.txd_key
-    where cte.row != 1
-    
-    ;with cte (row, txo_key, txd_key, pref) as
-    (
-    select 
-        row_number() over(partition by taxon_occurrence_key order by rank asc) as row
-        ,taxon_occurrence_key
-        ,taxon_determination_key
-        ,preferred
-    from #ranked
-    )
-    select * 
-    from cte
-    join TAXON_DETERMINATION txd 
-    on cte.txd_key = txd.TAXON_DETERMINATION_KEY
-    where row != 1
-      
-rollback tran
+commit tran
