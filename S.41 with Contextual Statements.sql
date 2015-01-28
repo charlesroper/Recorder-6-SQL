@@ -1,11 +1,15 @@
 use NBNData;
 
 /*
-*  TODO:
-*
-*  - Some contextuals aren't appearing. Need to do a taxon 
-*    expansion an bring in the fact where it exists.
-*
+
+  TODO:
+
+  - Some contextuals aren't appearing. Need to do a taxon 
+    expansion an bring in the fact where it exists.
+  
+  - Try Curlew (Numenius arquata). Example record is:
+    THU0000200030OS9.
+
 */
 
 with s41
