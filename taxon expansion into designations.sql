@@ -19,6 +19,11 @@ SELECT DISTINCT
   ITN3.COMMON_NAME AS [Other Common],
   ITN3.PREFERRED_NAME AS [Other Latin]
 
+  ,txdt.SHORT_NAME
+  ,txdt.LONG_NAME
+  ,txdt.Status_Abbreviation
+  ,txdt.KIND
+
 FROM
   INDEX_TAXON_NAME ITN
 
@@ -30,5 +35,14 @@ INNER JOIN
   INDEX_TAXON_NAME ITN3 ON
   ITN2.TAXON_LIST_ITEM_KEY = ITN3.RECOMMENDED_TAXON_LIST_ITEM_KEY
 
+RIGHT OUTER JOIN
+  Index_Taxon_Designation itd ON
+  ITN3.TAXON_LIST_ITEM_KEY = itd.Taxon_List_Item_Key
+
+INNER JOIN
+  TAXON_DESIGNATION_TYPE txdt ON
+  itd.Taxon_Designation_Type_Key = txdt.TAXON_DESIGNATION_TYPE_KEY
+
 WHERE
   ITN.COMMON_NAME = 'Eurasian Red Squirrel'
+  --and txdt.SHORT_NAME = 'England NERC S.41'
